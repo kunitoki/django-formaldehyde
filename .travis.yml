@@ -1,0 +1,19 @@
+language: python
+python:
+  - 2.7
+  - 3.2
+  - 3.3
+  - 3.4
+env:
+  - DJANGO=1.6.7
+  - DJANGO=1.7.0
+before_install:
+  - export DJANGO_SETTINGS_MODULE=formaldehyde.tests.settings
+install:
+  - pip install -q Django==$DJANGO
+  - pip install coveralls
+  - pip install .
+script:
+  - coverage run --timid --source=formaldehyde manage.py test formaldehyde
+after_success:
+  - coveralls
