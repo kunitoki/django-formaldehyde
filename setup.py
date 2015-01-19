@@ -1,33 +1,30 @@
 from setuptools import setup
 
-from custard import __version__
+from formaldehyde import __version__
 
 setup(
-    name='django-custard',
+    name='django-formaldehyde',
     version=__version__,
     license='MIT',
-    url='https://github.com/kunitoki/django-custard',
+    url='https://github.com/kunitoki/django-formaldehyde',
     author='Lucio Asnaghi (aka kunitoki)',
     author_email='kunitoki@gmail.com',
-    description='Django runtime typed custom fields for any model.',
+    description='Django forms at warp speed.',
     long_description=open('README.rst').read(),
     packages=[
-        'custard',
-        'custard.tests',
+        'formaldehyde',
+        'formaldehyde.tests',
     ],
     package_data={
-        'custard': ['templates/custard/admin/*.html'],
+        'formaldehyde': ['templates/formaldehyde/admin/*.html'],
     },
     install_requires=[
         "Django >= 1.6",
     ],
     keywords=[
         'django',
-        'models',
-        'fields',
-        'custom',
-        'admin',
-        'content types'
+        'form',
+        'formset'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
