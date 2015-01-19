@@ -2,7 +2,7 @@
 
 from fabric.api import env, task, cd, lcd, run, local, settings
 
-from custard import __version__
+from formaldehyde import __version__
 
 env.hosts = ['localhost']
 
