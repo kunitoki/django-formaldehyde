@@ -41,7 +41,9 @@ class Fieldline(object):
         if field:
             field = self.form[field]
 
-        layout = self.layout[self.__index] if self.__index < len(self.layout) else self.layout_cols
+        layout = self.layout[self.__index] if self.__index < len(self.layout) else None
+        if not layout:
+            layout = self.layout_cols
         
         self.__index += 1
 
@@ -85,7 +87,7 @@ class Fieldset(object):
 #==============================================================================
 class FieldsetForm(object):
     def fieldsets(self):
-        #assert(type(self))
+        assert(isinstance(self, forms.Form))
         
         meta = getattr(self, 'MetaForm', None)
         if not meta or not meta.fieldsets:

@@ -1,7 +1,4 @@
 import django
-#from django.conf import settings
-#from django.core.urlresolvers import reverse
-#from django.db import models
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -41,12 +38,20 @@ class TestForm(FieldsetForm, forms.Form):
             ('Address', {
                 'fields': (
                     'street',
-                ),
+                )
             }),
         )
 
     def __init__(self, *args, **kwargs):
         super(TestForm, self).__init__(*args, **kwargs)
+
+class TestModelForm(FieldsetForm, forms.ModelForm):
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
+class TestFormRaises(FieldsetForm):
+    pass
 
 
 #==============================================================================
@@ -60,10 +65,10 @@ class FormalehydeTestCase(TestCase):
 
     def test_fieldset_form(self):
         form = TestForm()
+        fieldsets = form.fieldsets()
+        self.assertIsNotNone(fieldsets)
 
-        self.assertIsNotNone(form.fieldsets)
-
-        fieldset01 = six.next(form.fieldsets())
+        fieldset01 = six.next(fieldsets)
         self.assertIsNone(fieldset01.legend)
         self.assertEqual(fieldset01.description, '')
         self.assertEqual(fieldset01.classes, 'form-control')
@@ -77,14 +82,28 @@ class FormalehydeTestCase(TestCase):
         self.assertEqual(6, fieldset01_line01_layout02)
 
         fieldset01_line02 = six.next(fieldset01)
-        fieldset01_line02_field01, fieldset02_line01_layout01 = six.next(fieldset01_line02)
-        self.assertEqual('street', fieldset01_line02_field01.name)
-        self.assertEqual(fieldset01_line02.layout_cols, fieldset01_line02_layout01)
-        
-        #for fieldset in form.fieldsets():
-        #    print(fieldset.legend)
-        #    print(fieldset.description)
-        #    print(fieldset.classes)
-        #    for fieldline in fieldset:
-        #        for field, field_size in fieldline:
-        #            print("%s (%s)" % (field, field_size))
+        fieldset01_line02_field01, fieldset01_line02_layout01 = six.next(fieldset01_line02)
+        self.assertEqual('last_name', fieldset01_line02_field01.name)
+        self.assertEqual(2, fieldset01_line02_layout01)
+
+        fieldset02 = six.next(fieldsets)
+        self.assertEqual(fieldset02.legend, 'Address')
+        self.assertEqual(fieldset02.description, '')
+        self.assertEqual(fieldset02.classes, '')
+
+        fieldset02_line01 = six.next(fieldset02)
+        fieldset02_line01_field01, fieldset02_line01_layout01 = six.next(fieldset02_line01)
+        self.assertEqual('street', fieldset02_line01_field01.name)
+        self.assertEqual(fieldset02_line01.layout_cols, fieldset02_line01_layout01)
+
+    def test_fieldset_model_form(self):
+        form = TestModelForm()
+        fieldsets = form.fieldsets()
+        self.assertIsNotNone(fieldsets)
+
+    def test_raises_form(self):
+        form = TestFormRaises()
+        fieldsets = form.fieldsets()
+       
+        with self.assertRaises(AssertionError):
+            six.next(fieldsets)
