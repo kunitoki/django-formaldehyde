@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from django.utils import six
 
 from formaldehyde.conf import settings
 from formaldehyde.fieldsets import FieldsetForm
@@ -65,7 +66,7 @@ class FormalehydeTestCase(TestCase):
 
         self.assertIsNotNone(form.fieldsets)
 
-        f01 = form.fieldsets().next()
+        f01 = six.advance_iterator(form.fieldsets())
         self.assertIsNone(f01.legend)
         self.assertEqual(f01.description, '')
         self.assertEqual(f01.classes, 'form-control')

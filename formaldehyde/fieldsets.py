@@ -24,7 +24,7 @@ from .conf import settings
 #==============================================================================
 class Fieldline(object):
     def __init__(self, form, fieldline, layoutline):
-        self.form = form  # A django.forms.Form instance
+        self.form = form
         if not hasattr(fieldline, "__iter__") or isinstance(fieldline, six.text_type):
             self.fields = [fieldline]
         else:
@@ -35,16 +35,12 @@ class Fieldline(object):
             self.layout = layoutline
 
         self.layout_cols = settings.GRID_COLUMN_NUMBER - settings.FIRST_LABEL_COLUMN_SIZE
+        if len(self.fields) > 1:
+            self.layout_cols = int(self.layout_cols / len(self.fields) - 1)
 
     def __iter__(self):
-        layout_cols = self.layout_cols
-        if len(self.fields) > 1:
-            layout_cols = int(layout_cols / len(self.fields) - 1)
-
-        for field, layout in itertools.izip_longest(self.fields,
-                                                     self.layout,
-                                                     fillvalue=None):
-            yield self.form[field], layout if layout else layout_cols
+        for field, layout in itertools.izip_longest(self.fields, self.layout):
+            yield self.form[field], layout if layout else self.layout_cols
 
 
 #==============================================================================
@@ -58,9 +54,7 @@ class Fieldset(object):
         self.classes = classes
 
     def __iter__(self):
-        for fieldline, layoutline in itertools.izip_longest(self.fields,
-                                                             self.layout,
-                                                             fillvalue=None):
+        for fieldline, layoutline in itertools.izip_longest(self.fields, self.layout):
             yield Fieldline(
                 form=self.form,
                 fieldline=fieldline,
@@ -71,13 +65,15 @@ class Fieldset(object):
 #==============================================================================
 class FieldsetForm(object):
     def fieldsets(self):
+        #assert(type(self))
+        
         meta = getattr(self, 'MetaForm', None)
         if not meta or not meta.fieldsets:
             return
 
         for legend, data in meta.fieldsets:
             yield Fieldset(
-                form=self,
+                form=self, # A django.forms.Form instance
                 legend=legend,
                 fields=data.get('fields', tuple()),
                 layout=data.get('layout', tuple()),
