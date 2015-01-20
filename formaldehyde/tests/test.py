@@ -42,9 +42,6 @@ class TestForm(FieldsetForm, forms.Form):
                 'fields': (
                     'street',
                 ),
-                'layout': (
-                    12,
-                )
             }),
         )
 
@@ -66,10 +63,23 @@ class FormalehydeTestCase(TestCase):
 
         self.assertIsNotNone(form.fieldsets)
 
-        f01 = six.advance_iterator(form.fieldsets())
-        self.assertIsNone(f01.legend)
-        self.assertEqual(f01.description, '')
-        self.assertEqual(f01.classes, 'form-control')
+        fieldset01 = six.next(form.fieldsets())
+        self.assertIsNone(fieldset01.legend)
+        self.assertEqual(fieldset01.description, '')
+        self.assertEqual(fieldset01.classes, 'form-control')
+
+        fieldset01_line01 = six.next(fieldset01)
+        fieldset01_line01_field01, fieldset01_line01_layout01 = six.next(fieldset01_line01)
+        self.assertEqual('first_name', fieldset01_line01_field01.name)
+        self.assertEqual(4, fieldset01_line01_layout01)
+        fieldset01_line01_field02, fieldset01_line01_layout02 = six.next(fieldset01_line01)
+        self.assertEqual('middle_name', fieldset01_line01_field02.name)
+        self.assertEqual(6, fieldset01_line01_layout02)
+
+        fieldset01_line02 = six.next(fieldset01)
+        fieldset01_line02_field01, fieldset02_line01_layout01 = six.next(fieldset01_line02)
+        self.assertEqual('street', fieldset01_line02_field01.name)
+        self.assertEqual(fieldset01_line02.layout_cols, fieldset01_line02_layout01)
         
         #for fieldset in form.fieldsets():
         #    print(fieldset.legend)

@@ -2,23 +2,9 @@ from __future__ import unicode_literals
 import re
 import itertools
 from django import forms
-#from django.forms.models import ModelFormOptions
-#from django.db.models import Q
-#from django.contrib.auth import get_user_model
-#from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
 from .conf import settings
-
-
-#==============================================================================
-# Inspiration: http://schinckel.net/2013/06/14/django-fieldsets/
-
-#_old_init = ModelFormOptions.__init__
-#def _new_init(self, options=None):
-#    _old_init(self, options)
-#    self.fieldsets = getattr(options, 'fieldsets', None)
-#ModelFormOptions.__init__ = _new_init
 
 
 #==============================================================================
@@ -38,9 +24,28 @@ class Fieldline(object):
         if len(self.fields) > 1:
             self.layout_cols = int(self.layout_cols / len(self.fields) - 1)
 
+        self.__index = 0
+        self.__len = max(len(self.fields), len(self.layout))
+
     def __iter__(self):
-        for field, layout in itertools.izip_longest(self.fields, self.layout):
-            yield self.form[field], layout if layout else self.layout_cols
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        if self.__index >= self.__len:
+            raise StopIteration()
+
+        field = self.fields[self.__index] if self.__index < len(self.fields) else None
+        if field:
+            field = self.form[field]
+
+        layout = self.layout[self.__index] if self.__index < len(self.layout) else self.layout_cols
+        
+        self.__index += 1
+
+        return field, layout
 
 
 #==============================================================================
@@ -53,13 +58,28 @@ class Fieldset(object):
         self.description = description
         self.classes = classes
 
+        self.__index = 0
+        self.__len = max(len(self.fields), len(self.layout))
+
     def __iter__(self):
-        for fieldline, layoutline in itertools.izip_longest(self.fields, self.layout):
-            yield Fieldline(
-                form=self.form,
-                fieldline=fieldline,
-                layoutline=layoutline
-            )
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        if self.__index >= self.__len:
+            raise StopIteration()
+
+        fieldline = Fieldline(
+            form=self.form,
+            fieldline=self.fields[self.__index] if self.__index < len(self.fields) else None,
+            layoutline=self.layout[self.__index] if self.__index < len(self.layout) else None,
+        )
+
+        self.__index += 1
+
+        return fieldline
 
 
 #==============================================================================
