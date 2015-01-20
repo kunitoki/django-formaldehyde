@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import django
 from django import forms
 from django.core.exceptions import ValidationError
@@ -9,15 +10,17 @@ from django.test.utils import override_settings
 from django.utils import six
 
 from formaldehyde.conf import settings
-from formaldehyde.fieldsets import FieldsetForm
+from formaldehyde.fieldsets import FieldsetFormMixin
+from formaldehyde.readonly import ReadonlyFormMixin
+from formaldehyde.whitespace import StripWhitespaceFormMixin
 
 
 #==============================================================================
-class TestForm(FieldsetForm, forms.Form):
+class TestFieldsetForm(FieldsetFormMixin, forms.Form):
     first_name = forms.CharField(label='First name', max_length=100)
-    middle_name = forms.CharField(label='Middle name', max_length=150)
-    last_name = forms.CharField(label='Last name', max_length=200)
-    street = forms.CharField(label='Street name', max_length=200)
+    middle_name = forms.CharField(label='Middle name', max_length=100)
+    last_name = forms.CharField(label='Last name', max_length=100)
+    street = forms.CharField(label='Street name', max_length=100)
 
     class Meta:
         fields = ('first_name', 'middle_name', 'last_name', 'street')
@@ -42,16 +45,24 @@ class TestForm(FieldsetForm, forms.Form):
             }),
         )
 
-    def __init__(self, *args, **kwargs):
-        super(TestForm, self).__init__(*args, **kwargs)
-
-class TestModelForm(FieldsetForm, forms.ModelForm):
+class TestFieldsetModelForm(FieldsetFormMixin, forms.ModelForm):
     class Meta:
         model = ContentType
         fields = "__all__"
 
-class TestFormRaises(FieldsetForm):
+class TestFieldsetFormRaises(FieldsetFormMixin):
     pass
+
+class TestReadonlyForm(ReadonlyFormMixin, forms.Form):
+    first_name = forms.CharField(label='First name', max_length=100)
+
+class TestWhitespaceForm(StripWhitespaceFormMixin, forms.Form):
+    first_name = forms.CharField(label='First name', max_length=100)
+    last_name = forms.CharField(label='Last name', max_length=100)
+
+    def full_clean(self):
+        self.strip_whitespace_from_data()
+        super(TestWhitespaceForm, self).full_clean()
 
 
 #==============================================================================
@@ -64,7 +75,7 @@ class FormalehydeTestCase(TestCase):
         pass
 
     def test_fieldset_form(self):
-        form = TestForm()
+        form = TestFieldsetForm()
         fieldsets = form.fieldsets()
         self.assertIsNotNone(fieldsets)
 
@@ -97,13 +108,30 @@ class FormalehydeTestCase(TestCase):
         self.assertEqual(fieldset02_line01.layout_cols, fieldset02_line01_layout01)
 
     def test_fieldset_model_form(self):
-        form = TestModelForm()
+        form = TestFieldsetModelForm()
         fieldsets = form.fieldsets()
-        self.assertIsNotNone(fieldsets)
 
     def test_raises_form(self):
-        form = TestFormRaises()
+        form = TestFieldsetFormRaises()
         fieldsets = form.fieldsets()
-       
+
         with self.assertRaises(AssertionError):
             six.next(fieldsets)
+
+    def test_readonly_form(self):
+        form = TestReadonlyForm()
+
+        form.set_readonly(True)
+        self.assertTrue(form.fields['first_name'].is_readonly)
+
+        form.set_readonly(False)
+        self.assertFalse(form.fields['first_name'].is_readonly)
+
+    def test_whitespace_form(self):
+        form = TestWhitespaceForm(data={'first_name': ' John    ', 'last_name': '   '})
+        self.assertFalse(form.is_valid())
+
+        form = TestWhitespaceForm(data={'first_name': ' Foo    ', 'last_name': '   Bar ack'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['first_name'], 'Foo')
+        self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')

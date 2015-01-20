@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import re
 import itertools
 from django import forms
 from django.utils import six
@@ -85,7 +84,7 @@ class Fieldset(object):
 
 
 #==============================================================================
-class FieldsetForm(object):
+class FieldsetFormMixin(object):
     def fieldsets(self):
         assert(isinstance(self, forms.Form))
         
