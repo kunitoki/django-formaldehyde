@@ -4,10 +4,10 @@ Changelog
 Only important changes are mentioned below.
 
 
-v0.3 (unreleased)
+v0.3 (2015-01-30)
 -----------------
 
-* ...
+* fieldsets in MetaForm can be avoided if preferred
 
 
 v0.2 (2015-01-30)
