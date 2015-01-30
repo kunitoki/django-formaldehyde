@@ -84,19 +84,25 @@ class Fieldset(object):
 
 #==============================================================================
 class FieldsetFormMixin(object):
-    def fieldsets(self):
-        assert(isinstance(self, forms.BaseForm))
-        
-        meta = getattr(self, 'MetaForm', None)
-        if not meta or not meta.fieldsets:
-            return
+    def __init__(self, *args, **kwargs):
+        super(FieldsetFormMixin, self).__init__(*args, **kwargs)
 
-        for legend, data in meta.fieldsets:
-            yield Fieldset(
-                form=self, # A django.forms.Form instance
-                legend=legend,
-                fields=data.get('fields', tuple()),
-                layout=data.get('layout', tuple()),
-                description=data.get('description', ''),
-                classes=data.get('classes', '')
-            )
+        assert(isinstance(self, forms.BaseForm))
+
+        self.meta = getattr(self, 'MetaForm', None)
+
+        self.fieldsets = None
+        if self.meta and self.meta.fieldsets:
+            self.fieldsets = self._fieldsets
+
+    def _fieldsets(self):
+        if self.meta and self.meta.fieldsets:
+            for legend, data in self.meta.fieldsets:
+                yield Fieldset(
+                    form=self,
+                    legend=legend,
+                    fields=data.get('fields', tuple()),
+                    layout=data.get('layout', tuple()),
+                    description=data.get('description', ''),
+                    classes=data.get('classes', '')
+                )

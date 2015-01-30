@@ -22,9 +22,6 @@ class TestFieldsetForm(FieldsetFormMixin, forms.Form):
     last_name = forms.CharField(label='Last name', max_length=100)
     street = forms.CharField(label='Street name', max_length=100)
 
-    class Meta:
-        fields = ('first_name', 'middle_name', 'last_name', 'street')
-
     class MetaForm:
         fieldsets = (
             (None, {
@@ -123,13 +120,13 @@ class FormalehydeTestCase(TestCase):
 
     def test_fieldset_model_form(self):
         form = TestFieldsetModelForm()
-        fieldsets = form.fieldsets()
+        if form.fieldsets:
+            fieldsets = form.fieldsets()
+            six.next(fieldsets)
 
     def test_raises_form(self):
-        form = TestFieldsetFormRaises()
-        fieldsets = form.fieldsets()
         with self.assertRaises(AssertionError):
-            six.next(fieldsets)
+            form = TestFieldsetFormRaises()
 
     def test_readonly_form(self):
         form = TestReadonlyForm()
