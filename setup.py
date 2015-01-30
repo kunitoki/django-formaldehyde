@@ -11,13 +11,8 @@ setup(
     author_email=__email__,
     description='Django forms at warp speed.',
     long_description=open('README.rst').read(),
-    packages=[
-        'formaldehyde',
-        'formaldehyde.tests',
-    ],
-    #package_data={
-    #    'formaldehyde': ['templates/formaldehyde/admin/*.html'],
-    #},
+    packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         "Django >= 1.6",
     ],
