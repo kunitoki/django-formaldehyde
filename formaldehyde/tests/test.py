@@ -57,8 +57,6 @@ class TestReadonlyForm(ReadonlyFormMixin, forms.Form):
     first_name = forms.CharField(label='First name', max_length=100)
 
 class TestReadonlyModelForm(ReadonlyFormMixin, forms.ModelForm):
-    first_name = forms.CharField(label='First name', max_length=100)
-
     class Meta:
         model = ContentType
         fields = "__all__"
@@ -72,16 +70,13 @@ class TestWhitespaceForm(StripWhitespaceFormMixin, forms.Form):
         super(TestWhitespaceForm, self).full_clean()
 
 class TestWhitespaceModelForm(StripWhitespaceFormMixin, forms.ModelForm):
-    first_name = forms.CharField(label='First name', max_length=100)
-    last_name = forms.CharField(label='Last name', max_length=100)
-
     class Meta:
         model = ContentType
         fields = "__all__"
 
     def full_clean(self):
         self.strip_whitespace_from_data()
-        super(TestWhitespaceForm, self).full_clean()
+        super(TestWhitespaceModelForm, self).full_clean()
 
 
 #==============================================================================
@@ -144,11 +139,12 @@ class FormalehydeTestCase(TestCase):
         self.assertFalse(form.fields['first_name'].is_readonly)
 
     def test_readonly_model_form(self):
-        form = TestReadonlyModelForm()
+        instance = ContentType.objects.get_for_model(ContentType)
+        form = TestReadonlyModelForm(instance=instance)
         form.set_readonly(True)
-        self.assertTrue(form.fields['first_name'].is_readonly)
+        self.assertTrue(form.fields['app_label'].is_readonly)
         form.set_readonly(False)
-        self.assertFalse(form.fields['first_name'].is_readonly)
+        self.assertFalse(form.fields['app_label'].is_readonly)
 
     def test_whitespace_form(self):
         form = TestWhitespaceForm(data={'first_name': ' John    ', 'last_name': '   '})
@@ -159,9 +155,14 @@ class FormalehydeTestCase(TestCase):
         self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')
 
     def test_whitespace_model_form(self):
-        form = TestWhitespaceModelForm(data={'first_name': ' John    ', 'last_name': '   '})
+        instance = ContentType.objects.get_for_model(ContentType)
+        form = TestWhitespaceModelForm(instance=instance, data={'name': ' content type ',
+                                                                'app_label': ' contenttypes    ',
+                                                                'model': '     '})
         self.assertFalse(form.is_valid())
-        form = TestWhitespaceModelForm(data={'first_name': ' Foo    ', 'last_name': '   Bar ack'})
+        form = TestWhitespaceModelForm(instance=instance, data={'name': ' content type ',
+                                                                'app_label': ' contenttypes    ',
+                                                                'model': '   contenttype  '})
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['first_name'], 'Foo')
-        self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')
+        self.assertEqual(form.cleaned_data['app_label'], 'contenttypes')
+        self.assertEqual(form.cleaned_data['model'], 'contenttype')
