@@ -10,7 +10,7 @@ class StripWhitespaceFormMixin(object):
     """
 
     def strip_whitespace_from_data(self):
-        assert(isinstance(self, forms.Form))
+        assert(isinstance(self, forms.BaseForm))
 
         if hasattr(self, 'data') and self.data:
             data = self.data.copy()

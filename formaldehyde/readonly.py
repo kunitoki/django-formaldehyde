@@ -9,6 +9,7 @@ class ReadonlyFormMixin(object):
     """
 
     def set_readonly(self, is_readonly=True):
-        assert(isinstance(self, forms.Form))
+        assert(isinstance(self, forms.BaseForm))
+
         for field in self.fields:
             self.fields[field].is_readonly = is_readonly

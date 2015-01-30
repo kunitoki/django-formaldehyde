@@ -56,9 +56,28 @@ class TestFieldsetFormRaises(FieldsetFormMixin):
 class TestReadonlyForm(ReadonlyFormMixin, forms.Form):
     first_name = forms.CharField(label='First name', max_length=100)
 
+class TestReadonlyModelForm(ReadonlyFormMixin, forms.ModelForm):
+    first_name = forms.CharField(label='First name', max_length=100)
+
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
 class TestWhitespaceForm(StripWhitespaceFormMixin, forms.Form):
     first_name = forms.CharField(label='First name', max_length=100)
     last_name = forms.CharField(label='Last name', max_length=100)
+
+    def full_clean(self):
+        self.strip_whitespace_from_data()
+        super(TestWhitespaceForm, self).full_clean()
+
+class TestWhitespaceModelForm(StripWhitespaceFormMixin, forms.ModelForm):
+    first_name = forms.CharField(label='First name', max_length=100)
+    last_name = forms.CharField(label='Last name', max_length=100)
+
+    class Meta:
+        model = ContentType
+        fields = "__all__"
 
     def full_clean(self):
         self.strip_whitespace_from_data()
@@ -114,24 +133,35 @@ class FormalehydeTestCase(TestCase):
     def test_raises_form(self):
         form = TestFieldsetFormRaises()
         fieldsets = form.fieldsets()
-
         with self.assertRaises(AssertionError):
             six.next(fieldsets)
 
     def test_readonly_form(self):
         form = TestReadonlyForm()
-
         form.set_readonly(True)
         self.assertTrue(form.fields['first_name'].is_readonly)
+        form.set_readonly(False)
+        self.assertFalse(form.fields['first_name'].is_readonly)
 
+    def test_readonly_model_form(self):
+        form = TestReadonlyModelForm()
+        form.set_readonly(True)
+        self.assertTrue(form.fields['first_name'].is_readonly)
         form.set_readonly(False)
         self.assertFalse(form.fields['first_name'].is_readonly)
 
     def test_whitespace_form(self):
         form = TestWhitespaceForm(data={'first_name': ' John    ', 'last_name': '   '})
         self.assertFalse(form.is_valid())
-
         form = TestWhitespaceForm(data={'first_name': ' Foo    ', 'last_name': '   Bar ack'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['first_name'], 'Foo')
+        self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')
+
+    def test_whitespace_model_form(self):
+        form = TestWhitespaceModelForm(data={'first_name': ' John    ', 'last_name': '   '})
+        self.assertFalse(form.is_valid())
+        form = TestWhitespaceModelForm(data={'first_name': ' Foo    ', 'last_name': '   Bar ack'})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['first_name'], 'Foo')
         self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')
