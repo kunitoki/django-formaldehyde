@@ -1,29 +1,30 @@
 from setuptools import setup
 
-from formaldehyde import __version__
+from formaldehyde import __author__, __version__, __license__, __email__
 
 setup(
     name='django-formaldehyde',
     version=__version__,
-    license='MIT',
+    license=__license__,
     url='https://github.com/kunitoki/django-formaldehyde',
-    author='Lucio Asnaghi (aka kunitoki)',
-    author_email='kunitoki@gmail.com',
+    author=__author__,
+    author_email=__email__,
     description='Django forms at warp speed.',
     long_description=open('README.rst').read(),
     packages=[
         'formaldehyde',
         'formaldehyde.tests',
     ],
-    package_data={
-        'formaldehyde': ['templates/formaldehyde/admin/*.html'],
-    },
+    #package_data={
+    #    'formaldehyde': ['templates/formaldehyde/admin/*.html'],
+    #},
     install_requires=[
         "Django >= 1.6",
     ],
     keywords=[
         'django',
         'form',
+        'forms',
         'formset'
     ],
     classifiers=[
