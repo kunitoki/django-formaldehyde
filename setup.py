@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from formaldehyde import __author__, __version__, __license__, __email__
 
