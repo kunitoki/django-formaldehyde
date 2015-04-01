@@ -33,6 +33,10 @@ class TestFieldsetForm(FieldsetFormMixin, forms.Form):
                     (4, 6),
                     2
                 ),
+                'labels': (
+                    (1, 1),
+                    10
+                ),
                 'classes': 'form-control'
             }),
             ('Address', {
@@ -96,17 +100,20 @@ class FormalehydeTestCase(TestCase):
         self.assertEqual(fieldset01.classes, 'form-control')
 
         fieldset01_line01 = six.next(fieldset01)
-        fieldset01_line01_field01, fieldset01_line01_layout01 = six.next(fieldset01_line01)
+        fieldset01_line01_field01, fieldset01_line01_layout01, fieldset01_line01_label01 = six.next(fieldset01_line01)
         self.assertEqual('first_name', fieldset01_line01_field01.name)
         self.assertEqual(4, fieldset01_line01_layout01)
-        fieldset01_line01_field02, fieldset01_line01_layout02 = six.next(fieldset01_line01)
+        self.assertEqual(1, fieldset01_line01_label01)
+        fieldset01_line01_field02, fieldset01_line01_layout02, fieldset01_line01_label02 = six.next(fieldset01_line01)
         self.assertEqual('middle_name', fieldset01_line01_field02.name)
         self.assertEqual(6, fieldset01_line01_layout02)
+        self.assertEqual(1, fieldset01_line01_label01)
 
         fieldset01_line02 = six.next(fieldset01)
-        fieldset01_line02_field01, fieldset01_line02_layout01 = six.next(fieldset01_line02)
+        fieldset01_line02_field01, fieldset01_line02_layout01, fieldset01_line02_label01 = six.next(fieldset01_line02)
         self.assertEqual('last_name', fieldset01_line02_field01.name)
         self.assertEqual(2, fieldset01_line02_layout01)
+        self.assertEqual(10, fieldset01_line02_label01)
 
         fieldset02 = six.next(fieldsets)
         self.assertEqual(fieldset02.legend, 'Address')
@@ -114,9 +121,10 @@ class FormalehydeTestCase(TestCase):
         self.assertEqual(fieldset02.classes, '')
 
         fieldset02_line01 = six.next(fieldset02)
-        fieldset02_line01_field01, fieldset02_line01_layout01 = six.next(fieldset02_line01)
+        fieldset02_line01_field01, fieldset02_line01_layout01, fieldset02_line01_label01 = six.next(fieldset02_line01)
         self.assertEqual('street', fieldset02_line01_field01.name)
-        self.assertEqual(fieldset02_line01.layout_cols, fieldset02_line01_layout01)
+        self.assertEqual(settings.DEFAULT_FIELD_COLUMN_SIZE, fieldset02_line01_layout01)
+        self.assertEqual(settings.FIRST_LABEL_COLUMN_SIZE, fieldset02_line01_label01)
 
     def test_fieldset_model_form(self):
         form = TestFieldsetModelForm()

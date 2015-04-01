@@ -24,7 +24,8 @@ It is possible to configure by using in ``settings.py``.::
 
     FORMALDEHYDE_SETTINGS = {
         'GRID_COLUMN_NUMBER': 12,
-        'LABEL_COLUMN_SIZE': 1,
+        'DEFAULT_FIELD_COLUMN_SIZE': 1,
+        'DEFAULT_LABEL_COLUMN_SIZE': 1,
         'FIRST_LABEL_COLUMN_SIZE': 2
     }
 
@@ -38,8 +39,9 @@ django-formaldehyde provides a series of django.forms.Form mixins to help the ha
 FieldsetFormMixin
 -----------------
 
-The mixin add fieldsets with fieldlines and layout support to forms. It adds the
-inner class MetaForm where you can specify your fieldsets configuration.::
+The mixin add fieldsets with fieldlines to forms. It also add the concept of layout
+of the fields, so it is possible to place fields and labels in the grid space.
+Everything is used inside an inner class called MetaForm::
 
     from django import forms
     from formaldehyde.fieldsets import FieldsetFormMixin
@@ -64,6 +66,10 @@ inner class MetaForm where you can specify your fieldsets configuration.::
                     'layout': (
                         (4, 6),
                         2
+                    ),
+                    'labels': (
+                        (2, 1),
+                        1
                     ),
                     'classes': 'form-control'
                 }),

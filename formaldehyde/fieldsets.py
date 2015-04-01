@@ -7,23 +7,26 @@ from .conf import settings
 
 #==============================================================================
 class Fieldline(object):
-    def __init__(self, form, fieldline, layoutline):
+    def __init__(self, form, fields, layout, labels):
         self.form = form
-        if not hasattr(fieldline, "__iter__") or isinstance(fieldline, six.text_type):
-            self.fields = [fieldline]
-        else:
-            self.fields = fieldline
-        if not hasattr(layoutline, "__iter__") or isinstance(fieldline, six.integer_types):
-            self.layout = [layoutline]
-        else:
-            self.layout = layoutline
 
-        self.layout_cols = settings.GRID_COLUMN_NUMBER - settings.FIRST_LABEL_COLUMN_SIZE
-        if len(self.fields) > 1:
-            self.layout_cols = int(self.layout_cols / len(self.fields) - 1)
+        if not hasattr(fields, "__iter__") or isinstance(fields, six.text_type):
+            self.fields = [fields]
+        else:
+            self.fields = fields
+
+        if not hasattr(layout, "__iter__") or isinstance(layout, six.integer_types):
+            self.layout = [layout]
+        else:
+            self.layout = layout
+
+        if not hasattr(labels, "__iter__") or isinstance(labels, six.integer_types):
+            self.labels = [labels]
+        else:
+            self.labels = labels
 
         self.__index = 0
-        self.__len = max(len(self.fields), len(self.layout))
+        self.__len = len(self.fields)
 
     def __iter__(self):
         return self
@@ -35,31 +38,34 @@ class Fieldline(object):
         if self.__index >= self.__len:
             raise StopIteration()
 
-        field = self.fields[self.__index] if self.__index < len(self.fields) else None
-        if field:
-            field = self.form[field]
+        field = self.form[self.fields[self.__index]]
 
-        layout = self.layout[self.__index] if self.__index < len(self.layout) else None
-        if not layout:
-            layout = self.layout_cols
-        
+        field_size = self.layout[self.__index] if self.__index < len(self.layout) else None
+        if field_size is None:
+            field_size = settings.DEFAULT_FIELD_COLUMN_SIZE
+
+        label_size = self.labels[self.__index] if self.__index < len(self.labels) else None
+        if label_size is None:
+            label_size = settings.FIRST_LABEL_COLUMN_SIZE if self.__index == 0 else settings.DEFAULT_LABEL_COLUMN_SIZE
+
         self.__index += 1
 
-        return field, layout
+        return field, field_size, label_size
 
 
 #==============================================================================
 class Fieldset(object):
-    def __init__(self, form, legend, fields, layout, description, classes):
+    def __init__(self, form, legend, description, classes, fields, layout, labels):
         self.form = form
         self.legend = legend
-        self.fields = fields
-        self.layout = layout
         self.description = description
         self.classes = classes
+        self.fields = fields
+        self.layout = layout
+        self.labels = labels
 
         self.__index = 0
-        self.__len = max(len(self.fields), len(self.layout))
+        self.__len = len(self.fields)
 
     def __iter__(self):
         return self
@@ -73,8 +79,9 @@ class Fieldset(object):
 
         fieldline = Fieldline(
             form=self.form,
-            fieldline=self.fields[self.__index] if self.__index < len(self.fields) else None,
-            layoutline=self.layout[self.__index] if self.__index < len(self.layout) else None,
+            fields=self.fields[self.__index] if self.__index < len(self.fields) else None,
+            layout=self.layout[self.__index] if self.__index < len(self.layout) else None,
+            labels=self.labels[self.__index] if self.__index < len(self.labels) else None,
         )
 
         self.__index += 1
@@ -101,8 +108,9 @@ class FieldsetFormMixin(object):
                 yield Fieldset(
                     form=self,
                     legend=legend,
+                    description=data.get('description', ''),
+                    classes=data.get('classes', ''),
                     fields=data.get('fields', tuple()),
                     layout=data.get('layout', tuple()),
-                    description=data.get('description', ''),
-                    classes=data.get('classes', '')
+                    labels=data.get('labels', tuple()),
                 )

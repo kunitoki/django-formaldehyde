@@ -31,8 +31,12 @@ class LazySettingsDict(object):
         return self.get_property('GRID_COLUMN_NUMBER', 12)
 
     @settings_property
-    def LABEL_COLUMN_SIZE(self):
-        return self.get_property('LABEL_COLUMN_SIZE', 1)
+    def DEFAULT_FIELD_COLUMN_SIZE(self):
+        return self.get_property('DEFAULT_FIELD_COLUMN_SIZE', 1)
+
+    @settings_property
+    def DEFAULT_LABEL_COLUMN_SIZE(self):
+        return self.get_property('DEFAULT_LABEL_COLUMN_SIZE', 1)
 
     @settings_property
     def FIRST_LABEL_COLUMN_SIZE(self):
