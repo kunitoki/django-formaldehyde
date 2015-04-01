@@ -76,6 +76,52 @@ inner class MetaForm where you can specify your fieldsets configuration.::
             )
 
 
+An example template (for bootstrap grid system) for rendering the form looks like::
+
+    {% if form.fieldsets %}
+        {% for fieldset in form.fieldsets %}
+            <fieldset class="{{ fieldset.classes }}">
+                {% if fieldset.legend %}
+                    <legend>{{ fieldset.legend }}</legend>
+                {% endif %}
+                {% if fieldset.description %}
+                    <p class="description">{{ fieldset.description }}</p>
+                {% endif %}
+                {% for fieldline in fieldset %}
+                    <div class="form-group">
+                    {% for field, layout in fieldline %}
+                        {% if field.is_hidden %}
+                            {{ field }}
+                        {% else %}
+                            <label class="col-sm-{% if forloop.first %}2{% else %}1{% endif %} control-label">
+                                {{ field.label }}
+                            </label>
+                            <div class="col-sm-{{ layout|default:10 }}">
+                                {{ field }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+            </fieldset>
+        {% endfor %}
+    {% else %}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+        {% for field in form.visible_fields %}
+            <div class="form-group{% if field.errors %} has-error{% endif %}">
+                <label class="col-sm-{% if forloop.first %}2{% else %}1{% endif %} control-label">
+                    {{ field.label }}
+                </label>
+                <div class="col-sm-{{ field_size|default:10 }}">
+                    {{ field }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
 ReadonlyFormMixin
 -----------------
 

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from copy import deepcopy
 from django import forms
 from django.utils import six
 
@@ -13,9 +14,9 @@ class StripWhitespaceFormMixin(object):
         assert(isinstance(self, forms.BaseForm))
 
         if hasattr(self, 'data') and self.data:
-            data = self.data.copy()
-            if hasattr(self.data, 'lists'):
-                for key, values in self.data.lists():
+            data = deepcopy(self.data)
+            if hasattr(data, 'lists'):
+                for key, values in data.lists():
                     new_values = []
                     for v in values:
                         if isinstance(v, six.text_type):
@@ -23,7 +24,7 @@ class StripWhitespaceFormMixin(object):
                         new_values.append(v)
                     data.setlist(key, new_values)
             else:
-                for key, value in six.iteritems(self.data):
+                for key, value in six.iteritems(data):
                     if isinstance(value, six.text_type):
                         value = value.strip()
                     data[key] = value

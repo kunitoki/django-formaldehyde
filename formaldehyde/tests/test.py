@@ -163,3 +163,13 @@ class FormalehydeTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['app_label'], 'contenttypes')
         self.assertEqual(form.cleaned_data['model'], 'contenttype')
+
+    def test_whitespace_request(self):
+        instance = ContentType.objects.get_for_model(ContentType)
+        request = self.factory.post('/', data={'name': ' content type ',
+                                               'app_label': ' contenttypes    ',
+                                               'model': '   contenttype  '})
+        form = TestWhitespaceModelForm(request.POST, instance=instance)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['app_label'], 'contenttypes')
+        self.assertEqual(form.cleaned_data['model'], 'contenttype')
