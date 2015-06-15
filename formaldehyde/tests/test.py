@@ -152,9 +152,12 @@ class FormalehydeTestCase(TestCase):
         self.assertFalse(form.fields['app_label'].is_readonly)
 
     def test_whitespace_form(self):
-        form = TestWhitespaceForm(data={'first_name': ' John    ', 'last_name': '   '})
+        request = self.factory.post('/', {'first_name': ' John    ', 'last_name': '   '})
+        form = TestWhitespaceForm(request.POST)
         self.assertFalse(form.is_valid())
-        form = TestWhitespaceForm(data={'first_name': ' Foo    ', 'last_name': '   Bar ack'})
+
+        request = self.factory.post('/', {'first_name': ' Foo    ', 'last_name': '   Bar ack'})
+        form = TestWhitespaceForm(request.POST)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['first_name'], 'Foo')
         self.assertEqual(form.cleaned_data['last_name'], 'Bar ack')

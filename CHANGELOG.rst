@@ -9,6 +9,7 @@ v0.4 (unreleased)
 
 * refactored field line iteration (backward incompatible)
 * fieldsets in MetaForm take both 'labels' and 'layout' to specify labels size in grid
+* fixed a problem with immutable MergeDict in StripWhitespaceFormMixin
 * updated docs
 
 

@@ -27,5 +27,5 @@ class StripWhitespaceFormMixin(object):
                 for key, value in six.iteritems(data):
                     if isinstance(value, six.text_type):
                         value = value.strip()
-                    data[key] = value
+                    data.update({ key: value })
             self.data = data
