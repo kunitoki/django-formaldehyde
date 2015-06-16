@@ -24,8 +24,10 @@ class StripWhitespaceFormMixin(object):
                         new_values.append(v)
                     data.setlist(key, new_values)
             else:
+                newdict = {}
                 for key, value in six.iteritems(data):
                     if isinstance(value, six.text_type):
                         value = value.strip()
-                    data.update({ key: value })
+                    newdict[key] = value
+                data = newdict
             self.data = data
